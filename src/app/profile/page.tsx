@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { User, Mail, MapPin, Calendar, Edit3, Camera, Briefcase, Users, Heart, Settings } from 'lucide-react'
+import { User, Mail, MapPin, Calendar, Edit3, Camera, Briefcase, Users, Heart, Settings, Github, Twitter, Linkedin, Globe, ExternalLink, Plus } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { useTheme } from 'next-themes'
 
@@ -16,6 +16,13 @@ export default function ProfilePage() {
     { label: 'Following', value: '45', icon: Users, color: 'emerald' },
     { label: 'Followers', value: '128', icon: Heart, color: 'red' },
     { label: 'Joined', value: 'Jan 2024', icon: Calendar, color: 'purple' },
+  ]
+
+  const socialLinks = [
+    { name: 'GitHub', url: 'https://github.com/johndoe', icon: Github, color: 'text-gray-600 dark:text-gray-400' },
+    { name: 'Twitter', url: 'https://twitter.com/johndoe', icon: Twitter, color: 'text-blue-400' },
+    { name: 'LinkedIn', url: 'https://linkedin.com/in/johndoe', icon: Linkedin, color: 'text-blue-600' },
+    { name: 'Website', url: 'https://johndoe.com', icon: Globe, color: 'text-emerald-600' },
   ]
 
   return (
@@ -61,7 +68,7 @@ export default function ProfilePage() {
                 John Doe
               </h1>
               <p className="text-slate-500 dark:text-slate-400 mb-4">
-                @johndoe
+                @johndoe • Senior Developer
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
@@ -216,6 +223,60 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Social Links Section */}
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            Social Links
+          </h2>
+          {isEditing && (
+            <Button variant="ghost" className="text-blue-600 dark:text-blue-400">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Link
+            </Button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {socialLinks.map((link, index) => {
+            const Icon = link.icon
+            return (
+              <a
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <Icon className={`h-5 w-5 ${link.color}`} />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {link.name}
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 truncate">
+                    {link.url}
+                  </div>
+                </div>
+                <ExternalLink className="h-4 w-4 text-slate-400" />
+              </a>
+            )
+          })}
+        </div>
+
+        {!isEditing && (
+          <div className="mt-6 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => setIsEditing(true)}
+              className="text-blue-600 dark:text-blue-400"
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              Edit Social Links
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

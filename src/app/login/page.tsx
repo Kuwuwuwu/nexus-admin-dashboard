@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, LogIn, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { useTheme } from 'next-themes'
@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     try {
       // Simulate authentication
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 1500))
       console.log('Login attempt:', { email, password })
 
       // Redirect to dashboard on successful login
@@ -42,13 +42,13 @@ export default function LoginPage() {
       {/* Login Container */}
       <div className="relative w-full max-w-md px-4">
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 p-8">
-          {/* Logo/Header */}
+          {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-2xl mb-4">
-              <LogIn className="h-8 w-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
+              <Sparkles className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome Back
+              Welcome back
             </h1>
             <p className="text-slate-500 dark:text-slate-400">
               Sign in to your account to continue
@@ -124,7 +124,7 @@ export default function LoginPage() {
             {/* Sign In Button */}
             <Button
               type="submit"
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl"
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg"
               disabled={loading}
             >
               {loading ? (
@@ -133,7 +133,10 @@ export default function LoginPage() {
                   Signing in...
                 </div>
               ) : (
-                'Sign In'
+                <div className="flex items-center gap-2">
+                  <LogIn className="h-5 w-5" />
+                  Sign In
+                </div>
               )}
             </Button>
           </form>

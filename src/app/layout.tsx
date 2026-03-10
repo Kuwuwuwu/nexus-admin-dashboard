@@ -4,7 +4,7 @@ import './globals.css'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
   LayoutDashboard,
@@ -38,12 +38,14 @@ import { ThemeProvider } from "./components/ui/theme-provider"
 import { MobileSidebar } from "./components/ui/mobile-sidebar"
 import { useClickOutside } from "./hooks/use-click-outside"
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { theme, setTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -66,6 +68,10 @@ export default function RootLayout({
       return pathname === "/"
     }
     return pathname.startsWith(href)
+  }
+
+  const handleLogout = () => {
+    router.push('/login')
   }
 
   return (
@@ -114,13 +120,13 @@ export default function RootLayout({
               {/* Logout Button */}
               {sidebarOpen && (
                 <div className="px-3 pb-4">
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 w-full"
                   >
                     <LogOut className="h-5 w-5 shrink-0" />
                     <span>Logout</span>
-                  </Link>
+                  </button>
                 </div>
               )}
             </aside>
