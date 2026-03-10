@@ -22,6 +22,7 @@ const trafficSourcesData = [
     { name: "Email", value: 5, color: "#EF4444" },
 ];
 
+
 export default function AnalyticsPage() {
     const { theme } = useTheme();
     const darkMode = theme === 'dark';
