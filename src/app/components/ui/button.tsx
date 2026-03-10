@@ -1,13 +1,14 @@
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "ghost" | "default";
+  variant?: "ghost" | "default" | "outline";
   size?: "icon" | "default";
 }
 
 const variantClasses: Record<string, string> = {
   ghost: "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800",
   default: "bg-blue-600 text-white hover:bg-blue-700",
+  outline: "border border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800",
 };
 
 const sizeClasses: Record<string, string> = {
