@@ -3,11 +3,15 @@ import { Button } from '../components/ui/button'
 import { useTheme } from 'next-themes'
 import { supabase } from '../../lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 async function getInvoices() {
   const { data, error } = await supabase
     .from('invoices')
     .select('*')
     .order('date', { ascending: false })
+
+  console.log('Fetched invoice data:', data, 'Error:', error)
 
   if (error) {
     console.error('Error fetching invoices:', error)

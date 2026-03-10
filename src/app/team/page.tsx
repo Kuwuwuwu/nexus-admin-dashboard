@@ -4,11 +4,15 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { supabase } from '../../lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 async function getTeamMembers() {
   const { data, error } = await supabase
     .from('team')
     .select('*')
     .order('created_at', { ascending: false })
+
+  console.log('Fetched team data:', data, 'Error:', error)
 
   if (error) {
     console.error('Error fetching team members:', error)
