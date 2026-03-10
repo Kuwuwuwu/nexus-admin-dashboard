@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { DollarSign, Users, TrendingUp, Clock, ArrowUp, Plus, UserPlus, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -72,47 +73,141 @@ const recentActivities = [
     }
 ];
 
+const statsCards = [
+    {
+        title: "Total Revenue",
+        value: "$72,548",
+        change: "+12.5%",
+        changeType: "positive" as const,
+        icon: DollarSign,
+        bgColor: "bg-blue-100",
+        iconColor: "text-blue-600"
+    },
+    {
+        title: "Active Users",
+        value: "2,845",
+        change: "+8.2%",
+        changeType: "positive" as const,
+        icon: Users,
+        bgColor: "bg-green-100",
+        iconColor: "text-green-600"
+    },
+    {
+        title: "Conversions",
+        value: "24.8%",
+        change: "-2.1%",
+        changeType: "negative" as const,
+        icon: TrendingUp,
+        bgColor: "bg-purple-100",
+        iconColor: "text-purple-600"
+    },
+    {
+        title: "Avg. Session",
+        value: "12m 34s",
+        change: "+5.4%",
+        changeType: "positive" as const,
+        icon: Clock,
+        bgColor: "bg-orange-100",
+        iconColor: "text-orange-600"
+    }
+];
+
 export default function DashboardPage() {
     const { theme } = useTheme();
     const darkMode = theme === 'dark';
-    const statsCards = [
-        {
-            title: "Total Revenue",
-            value: "$72,548",
-            change: "+12.5%",
-            changeType: "positive" as const,
-            icon: DollarSign,
-            bgColor: "bg-blue-100",
-            iconColor: "text-blue-600"
-        },
-        {
-            title: "Active Users",
-            value: "2,845",
-            change: "+8.2%",
-            changeType: "positive" as const,
-            icon: Users,
-            bgColor: "bg-green-100",
-            iconColor: "text-green-600"
-        },
-        {
-            title: "Conversions",
-            value: "24.8%",
-            change: "-2.1%",
-            changeType: "negative" as const,
-            icon: TrendingUp,
-            bgColor: "bg-purple-100",
-            iconColor: "text-purple-600"
-        },
-        {
-            title: "Avg. Session",
-            value: "12m 34s",
-            change: "+5.4%",
-            changeType: "positive" as const,
-            icon: Clock,
-            bgColor: "bg-orange-100",
-            iconColor: "text-orange-600"
-        }
-    ];
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="space-y-6">
+                {/* Page Header */}
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back!</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Here&apos;s what&apos;s happening with your SaaS platform today.</p>
+                </div>
+
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {statsCards.map((stat, index) => {
+                        const Icon = stat.icon;
+                        return (
+                            <div key={index} className="bg-white dark:bg-black p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm text-gray-600 dark:text-slate-400">{stat.title}</p>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stat.value}</p>
+                                        <div className="flex items-center mt-2">
+                                            <span className={`text-sm font-medium ${stat.changeType === 'positive'
+                                                ? 'text-green-600 dark:text-emerald-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                                }`}>
+                                                {stat.change}
+                                            </span>
+                                            <span className="text-sm text-gray-500 dark:text-slate-400 ml-2">
+                                                from last month
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className={`p-3 rounded-full ${stat.bgColor} dark:bg-opacity-20`}>
+                                        <Icon className={`h-6 w-6 ${stat.iconColor}`} />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Chart Placeholders */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm lg:col-span-2">
+                        <h3 className="font-bold text-lg mb-6 text-slate-900 dark:text-white">Revenue Overview</h3>
+                        <div className="h-[300px] flex items-center justify-center">
+                            <div className="text-slate-400">Loading chart...</div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <h3 className="font-bold text-lg mb-6 text-gray-900 dark:text-white">User Activity</h3>
+                        <div className="h-[300px] flex items-center justify-center">
+                            <div className="text-slate-400">Loading chart...</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent Activities */}
+                <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <h3 className="font-bold text-lg mb-6 text-slate-900 dark:text-white">Recent Activities</h3>
+                    <div className="space-y-4">
+                        {recentActivities.map((activity, index) => {
+                            const Icon = activity.icon;
+                            return (
+                                <div key={activity.id} className="flex items-center gap-4">
+                                    <div className="flex-shrink-0">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                            <Icon className={`h-5 w-5 ${activity.iconColor}`} />
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-900 dark:text-white">{activity.description}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                {activity.category}
+                                            </span>
+                                            <span className="text-xs text-slate-400">{activity.timestamp}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">

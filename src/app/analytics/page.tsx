@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { useTheme } from "next-themes";
 
@@ -26,6 +27,63 @@ const trafficSourcesData = [
 export default function AnalyticsPage() {
     const { theme } = useTheme();
     const darkMode = theme === 'dark';
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* User Growth Chart Placeholder */}
+                    <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm lg:col-span-2">
+                        <h3 className="font-bold text-lg mb-6 text-gray-900 dark:text-white">User Growth</h3>
+                        <div className="h-[300px] lg:h-[400px] flex items-center justify-center">
+                            <div className="text-slate-400">Loading chart...</div>
+                        </div>
+                    </div>
+
+                    {/* Traffic Sources Pie Chart Placeholder */}
+                    <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <h3 className="font-bold text-lg mb-6 text-gray-900 dark:text-white">Traffic Sources</h3>
+                        <div className="h-[300px] flex items-center justify-center">
+                            <div className="text-slate-400">Loading chart...</div>
+                        </div>
+                    </div>
+
+                    {/* Additional Stats */}
+                    <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm dark:backdrop-blur-sm p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <h3 className="font-bold text-lg mb-6 text-gray-900 dark:text-white">Key Metrics</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-slate-400">Total Page Views</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">1.2M</p>
+                                </div>
+                                <span className="text-emerald-400 text-sm font-medium">+18.2%</span>
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-slate-400">Bounce Rate</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">32.5%</p>
+                                </div>
+                                <span className="text-red-400 text-sm font-medium">-2.1%</span>
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-slate-400">Avg. Duration</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">4m 32s</p>
+                                </div>
+                                <span className="text-emerald-400 text-sm font-medium">+12.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
