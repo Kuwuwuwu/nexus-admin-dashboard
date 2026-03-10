@@ -1,59 +1,25 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 import { Users, Mail, Shield, MoreHorizontal, Plus, X, UserPlus, Crown } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
-import { useTheme } from 'next-themes'
+import { supabase } from '../../lib/supabase'
 
-export default function TeamPage() {
-  const { theme } = useTheme()
-  const darkMode = theme === 'dark'
-  const [showInviteDialog, setShowInviteDialog] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
+async function getTeamMembers() {
+  const { data, error } = await supabase
+    .from('team')
+    .select('*')
+    .order('created_at', { ascending: false })
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      role: 'Admin',
-      status: 'active',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=johndoe'
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      role: 'Member',
-      status: 'active',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=janesmith'
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      email: 'mike.johnson@example.com',
-      role: 'Member',
-      status: 'pending',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mikejohnson'
-    },
-    {
-      id: 4,
-      name: 'Sarah Williams',
-      email: 'sarah.williams@example.com',
-      role: 'Member',
-      status: 'active',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarahwilliams'
-    }
-  ]
-
-  const handleInvite = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Inviting:', inviteEmail)
-    setInviteEmail('')
-    setShowInviteDialog(false)
+  if (error) {
+    console.error('Error fetching team members:', error)
+    return []
   }
+
+  return data || []
+}
+
+export default async function TeamPage() {
+  const teamMembers = await getTeamMembers()
 
   const getRoleIcon = (role: string) => {
     return role === 'Admin' ? (
@@ -85,13 +51,6 @@ export default function TeamPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team</h1>
           <p className="text-slate-500 dark:text-slate-400">Manage your team members and permissions.</p>
         </div>
-        <Button
-          onClick={() => setShowInviteDialog(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Invite Member
-        </Button>
       </div>
 
       {/* Team Members Table */}
@@ -179,79 +138,6 @@ export default function TeamPage() {
           </table>
         </div>
       </div>
-
-      {/* Invite Dialog */}
-      {showInviteDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-lg w-full max-w-md">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Invite Team Member
-                </h3>
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setShowInviteDialog(false)}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <form onSubmit={handleInvite}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                    Email Address
-                  </label>
-                  <Input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="Enter email address"
-                    className="h-12 rounded-xl"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                    Role
-                  </label>
-                  <select
-                    title="Select role for team member"
-                    className="w-full h-12 px-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-                  >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Send Invite
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setShowInviteDialog(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

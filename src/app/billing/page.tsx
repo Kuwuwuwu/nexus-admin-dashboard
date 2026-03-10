@@ -1,13 +1,24 @@
-'use client'
-
-import { useState } from 'react'
 import { CreditCard, DollarSign, Check, AlertCircle, Plus, Download, Edit3, TrendingUp, Users, Zap } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { useTheme } from 'next-themes'
+import { supabase } from '../../lib/supabase'
 
-export default function BillingPage() {
-  const { theme } = useTheme()
-  const darkMode = theme === 'dark'
+async function getInvoices() {
+  const { data, error } = await supabase
+    .from('invoices')
+    .select('*')
+    .order('date', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching invoices:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export default async function BillingPage() {
+  const billingHistory = await getInvoices()
 
   const plans = [
     {
@@ -57,41 +68,6 @@ export default function BillingPage() {
       ],
       popular: false,
       current: false
-    }
-  ]
-
-  const billingHistory = [
-    {
-      id: 'INV-001',
-      date: '2024-03-15',
-      description: 'Pro Plan - Monthly Subscription',
-      amount: '$29.00',
-      status: 'paid',
-      downloadUrl: '#'
-    },
-    {
-      id: 'INV-002',
-      date: '2024-02-15',
-      description: 'Pro Plan - Monthly Subscription',
-      amount: '$29.00',
-      status: 'paid',
-      downloadUrl: '#'
-    },
-    {
-      id: 'INV-003',
-      date: '2024-01-15',
-      description: 'Pro Plan - Monthly Subscription',
-      amount: '$29.00',
-      status: 'paid',
-      downloadUrl: '#'
-    },
-    {
-      id: 'INV-004',
-      date: '2024-01-01',
-      description: 'Starter Plan - Setup Fee',
-      amount: '$0.00',
-      status: 'paid',
-      downloadUrl: '#'
     }
   ]
 
@@ -270,7 +246,7 @@ export default function BillingPage() {
                   </td>
                   <td className="py-3 px-4">
                     <a
-                      href={invoice.downloadUrl}
+                      href={invoice.download_url}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
                     >
                       <Download className="h-4 w-4" />
