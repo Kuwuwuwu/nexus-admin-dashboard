@@ -56,6 +56,8 @@ export default function RootLayout({
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Users", href: "/users", icon: Users },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Team", href: "/team", icon: Users },
+    { name: "Billing", href: "/billing", icon: CreditCard },
     { name: "Settings", href: "/settings", icon: Settings },
   ]
 
@@ -108,6 +110,19 @@ export default function RootLayout({
                   )
                 })}
               </nav>
+
+              {/* Logout Button */}
+              {sidebarOpen && (
+                <div className="px-3 pb-4">
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+                  >
+                    <LogOut className="h-5 w-5 shrink-0" />
+                    <span>Logout</span>
+                  </Link>
+                </div>
+              )}
             </aside>
 
             {/* Main Content */}
