@@ -29,7 +29,7 @@ A modern, fully responsive SaaS Dashboard built with Next.js 14, Tailwind CSS, a
 ## 📸 Screenshots
 
 ### Dark Mode
-![Dark Mode Dashboard](public/screenshots/dark-mode.jng)
+![Dark Mode Dashboard](public/screenshots/dark-mode.jpg)
 
 ### Light Mode
-![Light Mode Dashboard](public/screenshots/light-mode.jng)
+![Light Mode Dashboard](public/screenshots/light-mode.jpg)
