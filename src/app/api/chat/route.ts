@@ -17,6 +17,7 @@ export async function POST(req: Request) {
       return new Response('No messages provided', { status: 400 })
     }
 
+    
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-flash',
       safetySettings: [
