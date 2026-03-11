@@ -46,8 +46,14 @@ export default function AIChat() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const reader = response.body?.getReader()
-      if (!reader) return
+      if (!reader) {
+        throw new Error('No reader available')
+      }
 
       const decoder = new TextDecoder()
       let assistantContent = ''
@@ -55,16 +61,25 @@ export default function AIChat() {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        assistantContent += decoder.decode(value, { stream: true })
-      }
+        const chunk = decoder.decode(value, { stream: true })
+        assistantContent += chunk
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: assistantContent
+        // Update the message content as it streams
+        setMessages(prev => {
+          const updated = [...prev]
+          const lastMessage = updated[updated.length - 1]
+          if (lastMessage && lastMessage.role === 'assistant') {
+            lastMessage.content = assistantContent
+          } else {
+            updated.push({
+              id: (Date.now() + 1).toString(),
+              role: 'assistant',
+              content: assistantContent
+            })
+          }
+          return updated
+        })
       }
-
-      setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
       console.error('Chat error:', error)
     } finally {
@@ -138,8 +153,8 @@ export default function AIChat() {
                   )}
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-100 dark:bg-slate-800 text-gray-900 dark:text-white'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-gray-900 dark:text-white'
                       }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
