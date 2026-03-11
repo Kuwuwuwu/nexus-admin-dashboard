@@ -3,10 +3,13 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 // Log API key status (without revealing the key)
 console.log('API Key Status:', process.env.GOOGLE_GENERATIVE_AI_API_KEY ? 'Present' : 'Missing')
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || '')
-
 export async function POST(req: Request) {
   try {
+    // Runtime API key validation
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      throw new Error("API Key is missing at runtime");
+    }
+
     console.log('Chat API called')
     
     const { messages } = await req.json()
@@ -17,30 +20,45 @@ export async function POST(req: Request) {
       return new Response('No messages provided', { status: 400 })
     }
 
+    // Initialize Gemini with proper error handling
+    let genAI;
+    let model;
     
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE
+    try {
+      genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+      console.log('GoogleGenerativeAI initialized successfully');
+      
+      model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        // Add this to bypass potential proxy/region issues
+        generationConfig: { 
+          maxOutputTokens: 500 
         },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, 
-          threshold: HarmBlockThreshold.BLOCK_NONE
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE
-        }
-      ]
-    })
-    
-    console.log('Model initialized successfully')
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, 
+            threshold: HarmBlockThreshold.BLOCK_NONE
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_NONE
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE
+          }
+        ]
+      });
+      
+      console.log('Model initialized successfully');
+    } catch (initError: any) {
+      console.error('Error initializing Gemini:', initError);
+      throw new Error(`Failed to initialize Gemini: ${initError.message}`);
+    }
     
     // Convert messages to the format Gemini expects
     const lastMessage = messages[messages.length - 1]
@@ -57,12 +75,20 @@ export async function POST(req: Request) {
     User: ${lastMessage.content}`
 
     console.log('Sending prompt to Gemini...')
-    const result = await model.generateContentStream(prompt)
+    
+    let result;
+    try {
+      console.log("Starting Gemini request...")
+      result = await model.generateContentStream(prompt)
+      console.log('Stream received from Gemini')
+    } catch (fetchError: any) {
+      console.error('Error fetching from GoogleGenerativeAI:', fetchError);
+      throw new Error(`Failed to generate content: ${fetchError.message}`);
+    }
+    
     const stream = result.stream
 
-    console.log('Stream received from Gemini')
-
-    // Convert the stream to a ReadableStream
+    // Convert stream to a ReadableStream
     const encoder = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
