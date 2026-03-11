@@ -1,16 +1,45 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai'
+
+// Log API key status (without revealing the key)
+console.log('API Key Status:', process.env.GOOGLE_GENERATIVE_AI_API_KEY ? 'Present' : 'Missing')
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || '')
 
 export async function POST(req: Request) {
   try {
+    console.log('Chat API called')
+    
     const { messages } = await req.json()
+    console.log('Received messages:', messages?.length || 0, 'messages')
 
     if (!messages || messages.length === 0) {
+      console.error('No messages provided')
       return new Response('No messages provided', { status: 400 })
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, 
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }
+      ]
+    })
+    
+    console.log('Model initialized successfully')
     
     // Convert messages to the format Gemini expects
     const lastMessage = messages[messages.length - 1]
@@ -26,8 +55,11 @@ export async function POST(req: Request) {
     
     User: ${lastMessage.content}`
 
+    console.log('Sending prompt to Gemini...')
     const result = await model.generateContentStream(prompt)
     const stream = result.stream
+
+    console.log('Stream received from Gemini')
 
     // Convert the stream to a ReadableStream
     const encoder = new TextEncoder()
@@ -40,6 +72,7 @@ export async function POST(req: Request) {
           }
           controller.close()
         } catch (error) {
+          console.error('Stream processing error:', error)
           controller.error(error)
         }
       }
@@ -51,8 +84,13 @@ export async function POST(req: Request) {
         'Transfer-Encoding': 'chunked',
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Chat API error:', error)
+    console.error('Error details:', {
+      message: error?.message || 'Unknown error',
+      stack: error?.stack || 'No stack trace',
+      name: error?.name || 'Unknown error type'
+    })
     return new Response('Internal Server Error', { status: 500 })
   }
 }
