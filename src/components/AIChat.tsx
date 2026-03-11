@@ -58,30 +58,37 @@ export default function AIChat() {
       const decoder = new TextDecoder()
       let assistantContent = ''
 
+      // Add an initial assistant message
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: ''
+      }])
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
         const chunk = decoder.decode(value, { stream: true })
         assistantContent += chunk
 
-        // Update the message content as it streams
+        // Update the last assistant message with the new content
         setMessages(prev => {
           const updated = [...prev]
           const lastMessage = updated[updated.length - 1]
           if (lastMessage && lastMessage.role === 'assistant') {
             lastMessage.content = assistantContent
-          } else {
-            updated.push({
-              id: (Date.now() + 1).toString(),
-              role: 'assistant',
-              content: assistantContent
-            })
           }
           return updated
         })
       }
     } catch (error) {
       console.error('Chat error:', error)
+      // Add an error message
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.'
+      }])
     } finally {
       setIsLoading(false)
     }
