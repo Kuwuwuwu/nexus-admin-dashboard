@@ -37,6 +37,7 @@ import { ThemeDropdown } from "./components/ui/theme-dropdown"
 import { ThemeProvider } from "./components/ui/theme-provider"
 import { MobileSidebar } from "./components/ui/mobile-sidebar"
 import { useClickOutside } from "./hooks/use-click-outside"
+import AIChat from "../components/AIChat"
 
 export default function Layout({
   children,
@@ -263,6 +264,9 @@ export default function Layout({
               isOpen={mobileSidebarOpen}
               onClose={() => setMobileSidebarOpen(false)}
             />
+
+            {/* AI Chat */}
+            <AIChat />
           </div>
         </ThemeProvider>
       </body>
