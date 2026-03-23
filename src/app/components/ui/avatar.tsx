@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import Image from 'next/image';
 
 type AvatarProps = {
   children: ReactNode;
@@ -10,7 +11,7 @@ export function Avatar({ children, className = "" }: AvatarProps) {
 }
 
 export function AvatarImage({ src, alt }: { src: string; alt?: string }) {
-  return <img className="h-full w-full object-cover" src={src} alt={alt ?? "Avatar"} />;
+  return <Image className="h-full w-full object-cover" src={src} alt={alt ?? "Avatar"} width={100} height={100} />;
 }
 
 export function AvatarFallback({ children }: { children: ReactNode }) {
