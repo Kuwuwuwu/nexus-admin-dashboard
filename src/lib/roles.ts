@@ -1,7 +1,8 @@
 export enum Role {
   USER = 'USER',
+  MODERATOR = 'MODERATOR',
   ADMIN = 'ADMIN',
-  MODERATOR = 'MODERATOR'
+  PREMIUM = 'PREMIUM'
 }
 
 export interface UserRole {
@@ -20,7 +21,8 @@ export function checkRole(user: UserRole | null, requiredRole: Role): boolean {
   const roleHierarchy = {
     [Role.USER]: 1,
     [Role.MODERATOR]: 2,
-    [Role.ADMIN]: 3
+    [Role.PREMIUM]: 3,
+    [Role.ADMIN]: 4
   };
   
   return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
@@ -42,6 +44,16 @@ export function isAdmin(user: UserRole | null): boolean {
  */
 export function isModerator(user: UserRole | null): boolean {
   return checkRole(user, Role.MODERATOR);
+}
+
+/**
+ * Check if user has premium access
+ * @param user - User object with role property
+ * @returns boolean indicating if user is premium or admin
+ */
+export function isPremium(user: UserRole | null): boolean {
+  if (!user) return false;
+  return user.role === Role.PREMIUM || user.role === Role.ADMIN;
 }
 
 /**

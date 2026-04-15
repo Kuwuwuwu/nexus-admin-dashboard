@@ -2,10 +2,10 @@ import { auth } from '@clerk/nextjs/server'
 
 /**
  * Check if the current user has a specific role
- * @param requiredRole - The role to check against ('ADMIN', 'USER', 'MODERATOR')
+ * @param requiredRole - The role to check against ('ADMIN', 'USER', 'MODERATOR', 'PREMIUM')
  * @returns Promise<boolean> - Whether the user has the required role
  */
-export async function checkRole(requiredRole: 'ADMIN' | 'USER' | 'MODERATOR'): Promise<boolean> {
+export async function checkRole(requiredRole: 'ADMIN' | 'USER' | 'MODERATOR' | 'PREMIUM'): Promise<boolean> {
   try {
     const authResult = await auth()
     
@@ -44,9 +44,30 @@ export async function isModeratorOrHigher(): Promise<boolean> {
     
     const userRole = (authResult as any).publicMetadata?.role
     
-    return userRole === 'MODERATOR' || userRole === 'ADMIN'
+    return userRole === 'MODERATOR' || userRole === 'ADMIN' || userRole === 'PREMIUM'
   } catch (error) {
     console.error('Error checking user role:', error)
+    return false
+  }
+}
+
+/**
+ * Check if current user has premium access (PREMIUM or ADMIN)
+ * @returns Promise<boolean> - Whether the user has premium access
+ */
+export async function hasPremiumAccess(): Promise<boolean> {
+  try {
+    const authResult = await auth()
+    
+    if (!authResult.userId) {
+      return false
+    }
+    
+    const userRole = (authResult as any).publicMetadata?.role
+    
+    return userRole === 'PREMIUM' || userRole === 'ADMIN'
+  } catch (error) {
+    console.error('Error checking premium access:', error)
     return false
   }
 }
@@ -76,7 +97,8 @@ export async function getCurrentUserRole(): Promise<string | null> {
 export const ROLE_HIERARCHY = {
   USER: 1,
   MODERATOR: 2,
-  ADMIN: 3
+  PREMIUM: 3,
+  ADMIN: 4
 } as const
 
 /**
@@ -84,7 +106,7 @@ export const ROLE_HIERARCHY = {
  * @param minimumRole - The minimum role level required
  * @returns Promise<boolean> - Whether the user meets the minimum role requirement
  */
-export async function hasMinimumRole(minimumRole: 'USER' | 'MODERATOR' | 'ADMIN'): Promise<boolean> {
+export async function hasMinimumRole(minimumRole: 'USER' | 'MODERATOR' | 'PREMIUM' | 'ADMIN'): Promise<boolean> {
   try {
     const authResult = await auth()
     

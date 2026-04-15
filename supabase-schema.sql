@@ -14,11 +14,16 @@ CREATE TABLE team (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  role TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('USER', 'ADMIN', 'MODERATOR', 'PREMIUM')),
+  stripe_customer_id TEXT,
+  subscription_status TEXT CHECK (subscription_status IN ('active', 'canceled', 'past_due', 'none')) DEFAULT 'none',
   avatar TEXT DEFAULT 'https://api.dicebear.com/7.x/avataaars/svg?seed=default',
   status TEXT CHECK (status IN ('active', 'inactive')) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create index for Stripe customer lookups
+CREATE INDEX idx_team_stripe_customer ON team(stripe_customer_id);
 
 -- Insert sample data for invoices
 INSERT INTO invoices (id, date, description, amount, status, download_url) VALUES

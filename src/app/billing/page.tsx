@@ -1,7 +1,8 @@
-import { CreditCard, DollarSign, Check, AlertCircle, Plus, Download, Edit3, TrendingUp, Users, Zap } from 'lucide-react'
+import { CreditCard, DollarSign, Check, AlertCircle, Plus, Download, Edit3, TrendingUp, Users, Zap, Crown, Settings } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { useTheme } from 'next-themes'
 import { supabase } from '../../lib/supabase'
+import { ManageSubscriptionButton } from '../components/ManageSubscriptionButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -153,6 +154,36 @@ export default async function BillingPage() {
               </Button>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Subscription Management */}
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Subscription Management</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Manage your billing details, payment methods, and invoices
+            </p>
+          </div>
+          <ManageSubscriptionButton />
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 rounded-xl border border-amber-200 dark:border-amber-800/50">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+              <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">
+                Premium Plan Active
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Your subscription renews on May 15, 2024
+              </p>
+            </div>
+          </div>
+          <ManageSubscriptionButton />
         </div>
       </div>
 
