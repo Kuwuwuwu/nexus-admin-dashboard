@@ -11,7 +11,9 @@ import {
 import { AnalyticsCard } from '@/app/components/AnalyticsCard'
 import { RoleDistributionChart } from '@/app/components/RoleDistributionChart'
 import { getAnalyticsData } from '@/app/actions/analytics-actions'
+import { getRecentActivities } from '@/app/actions/activity-actions'
 import { Card } from '@/app/components/ui/card'
+import { RecentActivity } from '@/app/components/RecentActivity'
 import Link from 'next/link'
 
 export default async function AdminPage() {
@@ -35,6 +37,7 @@ export default async function AdminPage() {
 
   const user = await getCurrentUser()
   const analytics = await getAnalyticsData()
+  const recentActivities = await getRecentActivities(5)
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -73,10 +76,18 @@ export default async function AdminPage() {
       </div>
 
       {/* Charts and Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         {/* Role Distribution Chart */}
-        <RoleDistributionChart data={analytics.roleDistribution} />
+        <div className="lg:col-span-2">
+          <RoleDistributionChart data={analytics.roleDistribution} />
+        </div>
 
+        {/* Recent Activity */}
+        <RecentActivity activities={recentActivities} />
+      </div>
+
+      {/* Quick Actions and Recent Users */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Quick Actions */}
         <Card className="p-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

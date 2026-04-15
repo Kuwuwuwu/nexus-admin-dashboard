@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClerkClient } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
+import { logActivity } from './activity-actions'
 
 // Initialize Clerk client
 const clerkClient = createClerkClient({
@@ -44,8 +46,24 @@ export async function updateUserRole(userId: string, newRole: 'USER' | 'ADMIN' |
 
     console.log(`Updated user ${userId} role to ${newRole} in Clerk`)
 
-    // Revalidate the admin users page to refresh data
+    // Get current admin user from session
+    const authResult = await auth()
+    const adminUserId = authResult.userId || 'unknown'
+    
+    // Find user name for better logging (in production, fetch from DB)
+    const targetUser = mockUsers.find(u => u.id === userId)
+    const targetUserName = targetUser?.name || userId
+
+    // Log the activity
+    await logActivity(
+      adminUserId,
+      'Changed role',
+      `${targetUserName} to ${newRole}`
+    )
+
+    // Revalidate the admin users page and dashboard to refresh data
     revalidatePath('/admin/users')
+    revalidatePath('/admin')
 
     return {
       success: true,
