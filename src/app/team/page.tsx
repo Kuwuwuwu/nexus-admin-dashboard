@@ -7,8 +7,6 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { supabase } from '../../lib/supabase'
 
-export const dynamic = 'force-dynamic'
-
 interface TeamMember {
   id: string
   name: string
