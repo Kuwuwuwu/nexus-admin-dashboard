@@ -1,6 +1,6 @@
 'use client'
 
-import { useOptimistic, useTransition } from 'react'
+import { useOptimistic, useTransition, useEffect, useState } from 'react'
 import { getUsers, updateUserRole } from '@/app/actions/user-actions'
 import { Users, ChevronDown } from 'lucide-react'
 import { Button } from '@/app/components/ui/button'
@@ -19,11 +19,23 @@ interface User {
   joinedDate: string
 }
 
-interface AdminUsersPageProps {
-  users: User[]
-}
+export default function AdminUsersPage() {
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
 
-export default function AdminUsersPage({ users }: AdminUsersPageProps) {
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const data = await getUsers()
+        setUsers(data as User[])
+      } catch (error) {
+        console.error('Failed to fetch users:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUsers()
+  }, [])
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6 md:mb-8">
@@ -36,44 +48,52 @@ export default function AdminUsersPage({ users }: AdminUsersPageProps) {
         </p>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
-        {users.map((user) => (
-          <UserCard key={user.id} user={user} />
-        ))}
-      </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Joined Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
-              {users.map((user) => (
-                <UserRow key={user.id} user={user} />
-              ))}
-            </tbody>
-          </table>
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {users.map((user) => (
+              <UserCard key={user.id} user={user} />
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white dark:bg-slate-900 rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Joined Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+                  {users.map((user) => (
+                    <UserRow key={user.id} user={user} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

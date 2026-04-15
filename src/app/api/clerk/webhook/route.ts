@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import { Role } from '@/lib/roles'
 
+export const dynamic = 'force-dynamic'
+
 const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
 export async function POST(req: NextRequest) {

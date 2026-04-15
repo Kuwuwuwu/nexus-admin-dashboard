@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai'
 
+export const dynamic = 'force-dynamic'
+
 // Log API key status (without revealing the key)
 console.log('API Key Status:', process.env.GOOGLE_GENERATIVE_AI_API_KEY ? 'Present' : 'Missing')
 

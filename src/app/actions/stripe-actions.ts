@@ -4,10 +4,17 @@ import Stripe from 'stripe'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-})
+// Lazy initialization
+let stripe: Stripe | null = null
+
+function getStripe() {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2026-03-25.dahlia',
+    })
+  }
+  return stripe
+}
 
 /**
  * Create a Stripe Billing Portal session
@@ -40,7 +47,7 @@ export async function createBillingPortalSession() {
     }
 
     // Create billing portal session
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripe().billingPortal.sessions.create({
       customer: stripeCustomerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
     })
@@ -71,7 +78,7 @@ export async function createCheckoutSession(priceId: string) {
     // Get user email from Clerk
     // This is simplified - in production get from Clerk or your database
     
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
       billing_address_collection: 'auto',
       line_items: [

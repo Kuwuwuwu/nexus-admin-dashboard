@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClerkClient } from '@clerk/nextjs/server'
 
-// Initialize Clerk client
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-})
+export const dynamic = 'force-dynamic'
+
+// Lazy initialization
+let clerkClient: ReturnType<typeof createClerkClient> | null = null
+
+function getClerkClient() {
+  if (!clerkClient) {
+    clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    })
+  }
+  return clerkClient
+}
 
 // This webhook endpoint will be called when you want to sync roles from Prisma to Clerk
 // You can trigger this manually or set up a database trigger
@@ -30,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update Clerk user's publicMetadata with new role
-    const updatedUser = await clerkClient.users.updateUser(userId, {
+    const updatedUser = await getClerkClient().users.updateUser(userId, {
       publicMetadata: {
         role: newRole
       }
@@ -69,7 +78,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const user = await clerkClient.users.getUser(userId)
+    const user = await getClerkClient().users.getUser(userId)
 
     return NextResponse.json({
       success: true,

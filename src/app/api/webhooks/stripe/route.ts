@@ -2,18 +2,29 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClerkClient } from '@clerk/nextjs/server'
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-})
+export const dynamic = 'force-dynamic'
 
-// Initialize Clerk client
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-})
+// Lazy initialization - only create clients when needed
+let stripe: Stripe | null = null
+let clerkClient: ReturnType<typeof createClerkClient> | null = null
 
-// Webhook secret for verifying Stripe events
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+function getStripe() {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2026-03-25.dahlia',
+    })
+  }
+  return stripe
+}
+
+function getClerkClient() {
+  if (!clerkClient) {
+    clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    })
+  }
+  return clerkClient
+}
 
 /**
  * Update user role to PREMIUM in database and Clerk
@@ -41,14 +52,14 @@ async function updateUserToPremium(email: string, stripeCustomerId: string) {
 
     // Find user in Clerk by email and update their publicMetadata
     try {
-      const clerkUsers = await clerkClient.users.getUserList({
+      const clerkUsers = await getClerkClient().users.getUserList({
         emailAddress: [email],
       })
 
       if (clerkUsers.data.length > 0) {
         const clerkUser = clerkUsers.data[0]
         
-        await clerkClient.users.updateUser(clerkUser.id, {
+        await getClerkClient().users.updateUser(clerkUser.id, {
           publicMetadata: {
             role: 'PREMIUM',
             stripeCustomerId: stripeCustomerId,
@@ -79,7 +90,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     console.log(`[Stripe Webhook] Invoice payment succeeded: ${invoice.id}`)
     
     const customerId = invoice.customer as string
-    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer
+    const customer = await getStripe().customers.retrieve(customerId) as Stripe.Customer
     
     if (!customer.email) {
       console.error('[Stripe Webhook] No email found for customer:', customerId)
@@ -138,7 +149,8 @@ export async function POST(req: NextRequest) {
     let event: Stripe.Event
 
     try {
-      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+      event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret)
     } catch (err: any) {
       console.error(`[Stripe Webhook] Signature verification failed: ${err.message}`)
       return NextResponse.json(
