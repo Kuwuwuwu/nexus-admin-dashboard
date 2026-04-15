@@ -39,6 +39,7 @@ import { MobileSidebar } from "./components/ui/mobile-sidebar"
 import { useClickOutside } from "./hooks/use-click-outside"
 import AIChat from "../components/AIChat"
 import { ClerkProviderWrapper } from "./clerk-provider"
+import { RoleGuard } from "./components/RoleGuard"
 
 export default function Layout({
   children,
@@ -257,7 +258,9 @@ export default function Layout({
 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-                  {children}
+                  <RoleGuard>
+                    {children}
+                  </RoleGuard>
                 </main>
               </div>
 
