@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useOptimistic, useTransition } from 'react'
-import { checkRole } from '@/lib/check-role'
+import { useOptimistic, useTransition } from 'react'
 import { getUsers, updateUserRole } from '@/app/actions/user-actions'
 import { Users, ChevronDown } from 'lucide-react'
 import { Button } from '@/app/components/ui/button'
@@ -11,40 +10,41 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/app/components/ui/dropdown-menu'
-import { useOptimistic, startTransition } from 'react'
 
-// Server-side role check
-async function AdminUsersPage() {
-  // Ensure only ADMIN users can access this page
-  const isAdminUser = await checkRole('ADMIN')
+interface User {
+  id: string
+  name: string
+  email: string
+  role: 'USER' | 'ADMIN' | 'MODERATOR'
+  joinedDate: string
+}
 
-  if (!isAdminUser) {
-    return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-red-800 font-semibold">Access Denied</h2>
-          <p className="text-red-600">You need ADMIN role to access this page.</p>
-        </div>
-      </div>
-    )
-  }
+interface AdminUsersPageProps {
+  users: User[]
+}
 
-  // Fetch users from database
-  const users = await getUsers()
-
+export default function AdminUsersPage({ users }: AdminUsersPageProps) {
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
-          <Users className="h-8 w-8" />
+    <div className="p-4 md:p-6">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+          <Users className="h-6 w-6 md:h-8 md:w-8" />
           User Management
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
           Manage user roles and permissions
         </p>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {users.map((user) => (
+          <UserCard key={user.id} user={user} />
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
@@ -78,19 +78,52 @@ async function AdminUsersPage() {
   )
 }
 
-export default AdminUsersPage
-
-function UserRow({ user }: { user: any }) {
-  const [optimisticUser, setOptimisticUser] = useOptimistic(user, {
-    userId: user.id,
-    role: user.role,
-  })
-
+function UserCard({ user }: { user: User }) {
+  const [optimisticUser, setOptimisticUser] = useOptimistic(
+    user,
+    (state, newRole: 'USER' | 'ADMIN' | 'MODERATOR') => ({ ...state, role: newRole })
+  )
   const [isPending, startTransition] = useTransition()
 
   const handleRoleChange = (newRole: 'USER' | 'ADMIN' | 'MODERATOR') => {
     startTransition(() => {
-      setOptimisticUser({ userId: user.id, role: newRole } as any)
+      setOptimisticUser(newRole)
+      updateUserRole(user.id, newRole)
+    })
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
+        </div>
+        <RoleBadge role={optimisticUser.role} isPending={isPending} />
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500 dark:text-gray-400">{user.joinedDate}</span>
+        <RoleDropdown
+          currentRole={optimisticUser.role}
+          onRoleChange={handleRoleChange}
+          isPending={isPending}
+          disabled={isPending}
+        />
+      </div>
+    </div>
+  )
+}
+
+function UserRow({ user }: { user: User }) {
+  const [optimisticUser, setOptimisticUser] = useOptimistic(
+    user,
+    (state, newRole: 'USER' | 'ADMIN' | 'MODERATOR') => ({ ...state, role: newRole })
+  )
+  const [isPending, startTransition] = useTransition()
+
+  const handleRoleChange = (newRole: 'USER' | 'ADMIN' | 'MODERATOR') => {
+    startTransition(() => {
+      setOptimisticUser(newRole)
       updateUserRole(user.id, newRole)
     })
   }
@@ -193,5 +226,34 @@ function RoleDropdown({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function RoleBadge({ role, isPending }: { role: string; isPending: boolean }) {
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'ADMIN':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      case 'MODERATOR':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      case 'USER':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+    }
+  }
+
+  if (isPending) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium animate-pulse text-gray-500">
+        Updating...
+      </span>
+    )
+  }
+
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(role)}`}>
+      {role}
+    </span>
   )
 }

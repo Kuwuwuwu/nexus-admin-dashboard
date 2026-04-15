@@ -9,7 +9,11 @@ import {
   BarChart3,
   Settings,
   X,
+  CreditCard,
+  Users2,
+  LogOut,
 } from "lucide-react"
+import { useRouter } from 'next/navigation'
 
 interface MobileSidebarProps {
   isOpen: boolean
@@ -18,11 +22,14 @@ interface MobileSidebarProps {
 
 export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Users", href: "/users", icon: Users },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Team", href: "/team", icon: Users2 },
+    { name: "Billing", href: "/billing", icon: CreditCard },
     { name: "Settings", href: "/settings", icon: Settings },
   ]
 
@@ -58,11 +65,11 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
         onClick={onClose}
       />
-      
+
       {/* Mobile Sidebar */}
       <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-900 shadow-xl lg:hidden transform transition-transform duration-300 ease-in-out">
         <div className="flex flex-col h-full">
@@ -87,11 +94,10 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors min-h-[44px] ${
-                    isActive(item.href)
-                      ? "bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors min-h-[44px] ${isActive(item.href)
+                    ? "bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   <span className="font-medium">{item.name}</span>
@@ -99,6 +105,20 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               )
             })}
           </nav>
+
+          {/* Logout Button */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+            <button
+              onClick={() => {
+                onClose()
+                router.push('/login')
+              }}
+              className="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors min-h-[44px] w-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </>
