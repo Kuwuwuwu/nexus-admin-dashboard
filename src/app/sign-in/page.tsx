@@ -34,8 +34,6 @@ export default function SignInPage() {
           <SignIn
             path="/sign-in"
             routing="path"
-            forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
-            signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
             appearance={{
               elements: {
                 formButton: {

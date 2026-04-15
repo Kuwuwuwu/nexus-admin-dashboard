@@ -12,7 +12,7 @@ export default function SignUpPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#020617] px-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
-        <Link 
+        <Link
           href="/"
           className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8"
         >
@@ -31,11 +31,9 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          <SignUp 
+          <SignUp
             path="/sign-up"
             routing="path"
-            forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
-            signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
             appearance={{
               elements: {
                 formButton: {
@@ -67,8 +65,8 @@ export default function SignUpPage() {
           <div className="text-center mt-6">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
-              <Link 
-                href="/sign-in" 
+              <Link
+                href="/sign-in"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Sign in
