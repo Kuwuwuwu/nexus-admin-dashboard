@@ -16,6 +16,8 @@ import { Card } from '@/app/components/ui/card'
 import { RecentActivity } from '@/app/components/RecentActivity'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
   // Server-side role check for extra security
   const isAdmin = await checkRole('ADMIN')
