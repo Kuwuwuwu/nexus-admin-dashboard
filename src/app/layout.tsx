@@ -2,6 +2,8 @@ import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
 import ClientLayout from './client-layout'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Nexus Admin Dashboard',
   description: 'Modern SaaS Admin Dashboard with RBAC, AI, and Analytics',
